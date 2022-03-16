@@ -1,8 +1,17 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1544]:
-
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:light
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.13.7
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+# ---
 
 import argoverse
 from argoverse.data_loading.argoverse_forecasting_loader import ArgoverseForecastingLoader
@@ -21,10 +30,7 @@ import plotly.graph_objs as go
 import plotly.offline as pyo
 pyo.init_notebook_mode()
 
-
-# In[2]:
-
-
+# +
 #Define viz_sequence_inter
 from collections import defaultdict
 from typing import Dict, List, Optional
@@ -196,30 +202,16 @@ def viz_sequence_inter(
     plt.axis("off")
     if show:
         plt.show()
-
-
-# In[3]:
-
+# -
 
 root_dir = '/Users/shin1/argoverse-api/train/data'
-
-
-# In[4]:
-
 
 afl = ArgoverseForecastingLoader(root_dir)
 am = ArgoverseMap()
 
-
-# In[5]:
-
-
 print('Total number of sequences:', len(afl))
 
-
-# In[6]:
-
-
+# +
 MIA_agent = []
 MIA_raw = []
 MIA_num_tracks = []
@@ -236,17 +228,11 @@ for data in afl:
         PIT_agent.append(data.agent_traj)
         PIT_raw.append(data.seq_df)
         PIT_num_tracks.append(data.num_tracks)
-
-
-# In[1176]:
-
+# -
 
 print('Total number of sequences:', len(afl))
 print('\nNumber of MIA data:',len(MIA_raw))
 print('Number of PIT data:',len(PIT_raw))
-
-
-# In[1541]:
 
 
 def get_velocity(raw_data):
@@ -276,9 +262,6 @@ def get_velocity(raw_data):
     return diff, vel
 
 
-# In[1616]:
-
-
 MIA_diff, MIA_velocity = get_velocity(MIA_raw)
 PIT_diff, PIT_velocity = get_velocity(PIT_raw)
 print('MIA:\nmean velocity(mpt): %.3f, std: %.3f, mean number of tracks: %d\n' 
@@ -286,18 +269,10 @@ print('MIA:\nmean velocity(mpt): %.3f, std: %.3f, mean number of tracks: %d\n'
 print('PIT:\nmean velocity(mpt): %.3f, std: %.3f, mean number of tracks: %d' 
       %(np.mean(PIT_velocity), np.std(PIT_velocity), np.mean(PIT_num_tracks)))
 
-
-# In[1590]:
-
-
 pio.templates.default = 'simple_white'
 mean_velocity_df = pd.concat([pd.DataFrame({'Mean Velocity':MIA_velocity, 'City':'MIA'}),
                               pd.DataFrame({'Mean Velocity':PIT_velocity, 'City':'PIT'})])
 px.violin(mean_velocity_df, x='City', y='Mean Velocity', box = True, color='City')
-
-
-# In[1617]:
-
 
 plt.figure(figsize=(8,6))
 sns.kdeplot(MIA_velocity,color='blue', shade=True, label='MIA')
@@ -306,17 +281,11 @@ plt.legend(title="Velocity")
 plt.xlabel('Meter/Timestep')
 plt.show()
 
-
-# In[1619]:
-
-
+# +
 import scipy.stats
 
 scipy.stats.ttest_ind(MIA_velocity, PIT_velocity, equal_var=False)
-
-
-# In[1452]:
-
+# -
 
 #Outlier
 i = -1
@@ -325,29 +294,13 @@ for idx in MIA_velocity:
     if idx>80:
         print(i)
 
-
-# In[1484]:
-
-
 viz_sequence(MIA_raw[1])
-
-
-# In[1453]:
-
 
 viz_sequence(MIA_raw[5445],show=True)
 print(MIA_velocity[5445])
 
-
-# In[1454]:
-
-
 viz_sequence(MIA_raw[36931],show=True)
 print(MIA_velocity[36931])
-
-
-# In[15]:
-
 
 #Outlier
 i = -1
@@ -356,50 +309,23 @@ for idx in PIT_velocity:
     if idx>120:
         print(i)
 
-
-# In[16]:
-
-
 viz_sequence(PIT_raw[42194],show=True)
 print(PIT_velocity[42194])
-
-
-# In[1624]:
-
 
 num_tracks_df = pd.concat([pd.DataFrame({'number of tracks':MIA_num_tracks, 'City':'MIA'}),
                            pd.DataFrame({'number of tracks':PIT_num_tracks, 'City':'PIT'})])
 px.violin(num_tracks_df, x='City', y='number of tracks', box = True, color='City')
 
-
-# In[1534]:
-
-
 print(np.corrcoef(MIA_num_tracks, MIA_velocity)[0,1])
 print(np.corrcoef(PIT_num_tracks, PIT_velocity)[0,1])
-
-
-# In[1626]:
-
 
 MIA_dic = {'City':'MIA', 'num_tracks':MIA_num_tracks, 'velocity':MIA_velocity}
 PIT_dic = {'City':'PIT', 'num_tracks':PIT_num_tracks, 'velocity':PIT_velocity}
 
-
-# In[1627]:
-
-
 track_vel = pd.concat([pd.DataFrame(MIA_dic),pd.DataFrame(PIT_dic)])
-
-
-# In[1628]:
-
 
 fig = px.scatter(track_vel, x='num_tracks', y='velocity', color='City' ,template='simple_white')
 fig.update_traces(marker=dict(opacity=0.5))
-
-
-# In[691]:
 
 
 def intersection(agent_xy, city_name):
@@ -422,23 +348,13 @@ def intersection(agent_xy, city_name):
     return is_in_intersection
 
 
-# In[692]:
-
-
 MIA_intersection = []
 for agent in tqdm.tqdm(MIA_agent): 
     MIA_intersection.append(intersection(agent, city_name='MIA'))
 
-
-# In[693]:
-
-
 PIT_intersection = []
 for agent in tqdm.tqdm(PIT_agent):
     PIT_intersection.append(intersection(agent, city_name='PIT'))
-
-
-# In[710]:
 
 
 def intersection_idx(intersection):
@@ -452,39 +368,16 @@ def intersection_idx(intersection):
     return intersection_idx, no_intersection_idx
 
 
-# In[712]:
-
-
 MIA_inter_idx, MIA_nointer_idx = intersection_idx(MIA_intersection)
 PIT_inter_idx, PIT_nointer_idx = intersection_idx(PIT_intersection)
-
-
-# In[713]:
-
 
 print('MIA trajectory with intersection(%): {0:.2f}%'.format(len(MIA_inter_idx)/len(MIA_raw)*100))
 print('PIT trajectory with intersection(%): {0:.2f}%'.format(len(PIT_inter_idx)/len(PIT_raw)*100))
 
 
-# In[ ]:
 
 
 
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[901]:
 
 
 def get_lane_direction(agent_xy, city_name):
@@ -500,9 +393,7 @@ def get_lane_direction(agent_xy, city_name):
     return lane_direction
 
 
-# In[750]:
-
-
+# +
 MIA_intersection_5 = [] #0.5초 단위로 어떤 차선을 타고 있는지
 for intersect in MIA_intersection:
     mean = []
@@ -524,8 +415,7 @@ for intersect in PIT_intersection:
     PIT_intersection_5.append(mean)
 
 
-# In[1068]:
-
+# -
 
 def left_lane(agent, city_name):
     leftlane = []
@@ -543,9 +433,6 @@ def left_lane(agent, city_name):
                 break
 
     return leftlane
-
-
-# In[1071]:
 
 
 def right_lane(agent, city_name):
@@ -566,43 +453,17 @@ def right_lane(agent, city_name):
     return rightlane
 
 
-# In[1069]:
-
-
 MIA_leftlane = left_lane(MIA_agent, 'MIA')
-
-
-# In[1072]:
-
 
 MIA_rightlane = right_lane(MIA_agent, 'MIA')
 
-
-# In[1074]:
-
-
 print(len(MIA_leftlane), len(MIA_rightlane))
-
-
-# In[1070]:
-
 
 PIT_leftlane = left_lane(PIT_agent, 'PIT')
 
-
-# In[1073]:
-
-
 PIT_rightlane = right_lane(PIT_agent, 'PIT')
 
-
-# In[1075]:
-
-
 print(len(PIT_leftlane), len(PIT_rightlane))
-
-
-# In[1080]:
 
 
 def get_turn(raw_data, threshold=0.4):
@@ -683,93 +544,38 @@ def get_turn(raw_data, threshold=0.4):
     return left_turn, right_turn, nointer_idx, forward_inter
 
 
-# In[1079]:
-
-
 MIA_left, MIA_right, MIA_forward_nointer, MIA_forward_inter = get_turn(MIA_raw)
 print('Percentage of MIA forward with no intersection:',round(len(MIA_forward_nointer)/len(MIA_agent)*100,3))
 print('Percentage of MIA forward with intersection:',round(len(MIA_forward_inter)/len(MIA_agent)*100,3))
 print('Percentage of MIA left:',round(len(MIA_left)/len(MIA_agent)*100,3))
 print('Percentage of MIA right:',round(len(MIA_right)/len(MIA_agent)*100,3))
 
-
-# In[1081]:
-
-
 random.seed(0)
 random.sample(MIA_left,3)
 
-
-# In[1082]:
-
-
 viz_sequence(MIA_raw[95797])
-
-
-# In[1083]:
-
 
 viz_sequence(MIA_raw[43820])
 
-
-# In[1084]:
-
-
 viz_sequence(MIA_raw[86185])
-
-
-# In[1346]:
-
 
 random.seed(0)
 random.sample(MIA_forward, 3)
 
-
-# In[1347]:
-
-
 viz_sequence(MIA_raw[66659])
-
-
-# In[1348]:
-
 
 viz_sequence(MIA_raw[72813])
 
-
-# In[1349]:
-
-
 viz_sequence(MIA_raw[6961])
-
-
-# In[1085]:
-
 
 random.seed(0)
 random.sample(MIA_forward_nointer, 3)
 
-
-# In[720]:
-
-
 viz_sequence(MIA_raw[52780])
-
-
-# In[721]:
-
 
 viz_sequence(MIA_raw[105058])
 
-
-# In[722]:
-
-
 viz_sequence(MIA_raw[57654])
-
-
-# In[1088]:
-
 
 PIT_left, PIT_right, PIT_forward_nointer, PIT_forward_inter = get_turn(PIT_raw)
 print('Percentage of PIT forward with no intersection:',round(len(PIT_forward_nointer)/len(PIT_agent)*100,3))
@@ -777,66 +583,26 @@ print('Percentage of PIT forward with intersection:',round(len(PIT_forward_inter
 print('Percentage of PIT left:',round(len(PIT_left)/len(PIT_agent)*100,3))
 print('Percentage of PIT right:',round(len(PIT_right)/len(PIT_agent)*100,3))
 
-
-# In[1089]:
-
-
 random.seed(0)
 random.sample(PIT_right, 3)
 
-
-# In[1090]:
-
-
 viz_sequence(PIT_raw[50974])
-
-
-# In[1091]:
-
 
 viz_sequence(PIT_raw[55953])
 
-
-# In[1092]:
-
-
 viz_sequence(PIT_raw[5511])
-
-
-# In[1093]:
-
 
 random.seed(0)
 random.sample(PIT_forward_inter, 3)
 
-
-# In[1094]:
-
-
 viz_sequence(PIT_raw[82048])
-
-
-# In[1095]:
-
 
 viz_sequence(PIT_raw[37402])
 
-
-# In[1096]:
-
-
 viz_sequence(PIT_raw[74635])
-
-
-# In[1097]:
-
 
 MIA_forward = np.union1d(MIA_forward_nointer, MIA_forward_inter)
 PIT_forward = np.union1d(PIT_forward_nointer, PIT_forward_inter)
-
-
-# In[1697]:
-
 
 fig = plotly.subplots.make_subplots(rows=1, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}]],
                                    subplot_titles=['MIA', 'PIT'])
@@ -848,14 +614,8 @@ fig.update_layout(title_text='Percentage of trajectory type by city')
 fig.show()
 
 
-# In[1099]:
-
-
 def get_elements_in_list(in_list, in_indices):
     return [in_list[i] for i in in_indices]
-
-
-# In[1100]:
 
 
 def get_velocity_idx(diff, index):
@@ -865,9 +625,7 @@ def get_velocity_idx(diff, index):
     return vel
 
 
-# In[1658]:
-
-
+# +
 MIA_forward_vel = np.mean(get_velocity_idx(MIA_diff, MIA_forward)), np.std(get_velocity_idx(MIA_diff, MIA_forward))
 MIA_forward_nointer_vel = np.mean(get_velocity_idx(MIA_diff,MIA_forward_nointer)), np.std(get_velocity_idx(MIA_diff,MIA_forward_nointer))
 MIA_forward_inter_vel = np.mean(get_velocity_idx(MIA_diff,MIA_forward_inter)), np.std(get_velocity_idx(MIA_diff,MIA_forward_inter))
@@ -879,18 +637,12 @@ print('Velocity of MIA forward with no intersection:\n mean:%.3f std:%.3f'%(MIA_
 print('Velocity of MIA forward with intersection:\n mean:%.3f std:%.3f'%(MIA_forward_inter_vel[0],MIA_forward_inter_vel[1]))
 print('Velocity of MIA left:\n mean:%.3f std:%.3f'%(MIA_left_vel[0],MIA_left_vel[1]))
 print('Velocity of MIA right:\n mean:%.3f std:%.3f'%(MIA_right_vel[0],MIA_right_vel[1]))
-
-
-# In[1659]:
-
+# -
 
 viz_sequence(MIA_raw[MIA_forward_nointer[2]],show=True)
 #traffic jam 때문에 교차로를 들어가기 전부터 막힘 -->속도 낮음
 
-
-# In[1660]:
-
-
+# +
 PIT_forward_vel = np.mean(get_velocity_idx(PIT_diff, PIT_forward)), np.std(get_velocity_idx(PIT_diff, PIT_forward))
 PIT_forward_nointer_vel = np.mean(get_velocity_idx(PIT_diff,PIT_forward_nointer)), np.std(get_velocity_idx(PIT_diff,PIT_forward_nointer))
 PIT_forward_inter_vel = np.mean(get_velocity_idx(PIT_diff,PIT_forward_inter)), np.std(get_velocity_idx(PIT_diff,PIT_forward_inter))
@@ -902,17 +654,11 @@ print('Velocity of PIT forward with no intersection:\n mean:%.3f std:%.3f'%(PIT_
 print('Velocity of PIT forward with intersection:\n mean:%.3f std:%.3f'%(PIT_forward_inter_vel[0],PIT_forward_inter_vel[1]))
 print('Velocity of PIT left:\n mean:%.3f std:%.3f'%(PIT_left_vel[0],PIT_left_vel[1]))
 print('Velocity of PIT right:\n mean:%.3f std:%.3f'%(PIT_right_vel[0],PIT_right_vel[1]))
-
-
-# In[1672]:
-
+# -
 
 scipy.stats.ttest_ind(get_velocity_idx(PIT_diff, PIT_right), get_velocity_idx(MIA_diff, MIA_right),equal_var=False)
 
-
-# In[1661]:
-
-
+# +
 MIA_forward_vel = pd.DataFrame({'Mean Velocity':get_velocity_idx(MIA_diff, MIA_forward), 
                                 'City':'MIA', 'Trajectory_type':'forward'})
 MIA_left_vel = pd.DataFrame({'Mean Velocity':get_velocity_idx(MIA_diff,MIA_left), 
@@ -929,10 +675,7 @@ PIT_right_vel = pd.DataFrame({'Mean Velocity':get_velocity_idx(PIT_diff,PIT_righ
 
 velocity_df = pd.concat([MIA_forward_vel,  MIA_left_vel, MIA_right_vel,
                          PIT_forward_vel,  PIT_left_vel, PIT_right_vel])
-
-
-# In[1662]:
-
+# -
 
 pio.templates.default = 'simple_white'
 px.box(data_frame = velocity_df
@@ -941,10 +684,7 @@ px.box(data_frame = velocity_df
        ,color = 'City'
        )
 
-
-# In[1693]:
-
-
+# +
 MIA_forward_inter_vel = pd.DataFrame({'Mean Velocity':get_velocity_idx(MIA_diff, MIA_forward_inter),
                                       'City':'MIA', 'Trajectory_type':'forward(intersect)'})
 MIA_forward_nointer_vel = pd.DataFrame({'Mean Velocity':get_velocity_idx(MIA_diff,MIA_forward_nointer), 
@@ -958,10 +698,7 @@ PIT_forward_inter_vel = pd.DataFrame({'Mean Velocity':get_velocity_idx(PIT_diff,
 
 velocity_df = pd.concat([MIA_forward_nointer_vel, MIA_forward_inter_vel,
                          PIT_forward_nointer_vel, PIT_forward_inter_vel])
-
-
-# In[1694]:
-
+# -
 
 pio.templates.default = 'simple_white'
 px.box(data_frame = velocity_df
@@ -971,33 +708,14 @@ px.box(data_frame = velocity_df
        )
 
 
-# In[ ]:
 
 
 
 
 
-# In[ ]:
 
 
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[1699]:
-
-
+# +
 MIA_intersection_velocity = MIA_forward_inter_vel['Mean Velocity']
 PIT_intersection_velocity = PIT_forward_inter_vel['Mean Velocity']
 
@@ -1010,10 +728,7 @@ PIT_left_velocity = PIT_left_vel['Mean Velocity']
 MIA_right_velocity = MIA_right_vel['Mean Velocity']
 PIT_right_velocity = PIT_right_vel['Mean Velocity']
 
-
-# In[1704]:
-
-
+# +
 plt.figure(figsize=(8,6))
 plt.subplot(2,1,1)
 sns.kdeplot(MIA_intersection_velocity, color='blue', fill=True, label='MIA(Intersection)')
@@ -1030,10 +745,7 @@ plt.xlabel('meter/timestep')
 plt.show()
 #NO intersection일 때 아마 PIT에서 훈련한 모델이 더 많이 나간다고 예측할 것
 
-
-# In[1111]:
-
-
+# +
 plt.figure(figsize=(8,6))
 plt.subplot(2,1,1)
 sns.kdeplot(MIA_left_velocity, color='blue', fill=True, label='MIA')
@@ -1050,27 +762,12 @@ plt.xlabel('km/h')
 plt.show()
 
 #두 분포가 거의 비슷
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
+# -
 
 
 
 
 
-# In[ ]:
-
-
-
-
-
-# In[1112]:
 
 
 def get_segment(agent_xy, city_name):
@@ -1081,9 +778,6 @@ def get_segment(agent_xy, city_name):
         lane_segment.append(temp_lane)
 
     return lane_segment
-
-
-# In[1192]:
 
 
 def changing_lane(forward_idx, city_name):
@@ -1119,106 +813,39 @@ def changing_lane(forward_idx, city_name):
     return list(np.unique(changing_lane_id))
 
 
-# In[1174]:
-
-
 MIA_forward_changing_lane = changing_lane(MIA_forward, city_name = 'MIA')
-
-
-# In[1198]:
-
 
 len(MIA_forward_changing_lane)
 
-
-# In[1209]:
-
-
 PIT_forward_changing_lane = changing_lane(PIT_forward, city_name = 'PIT')
-
-
-# In[1257]:
-
 
 len(PIT_forward_changing_lane)
 
-
-# In[1197]:
-
-
 np.mean(get_velocity_idx(MIA_diff,MIA_forward_changing_lane))
-
-
-# In[1258]:
-
 
 np.mean(get_velocity_idx(PIT_diff,PIT_forward_changing_lane))
 
-
-# In[1196]:
-
-
 viz_sequence(MIA_raw[64])
-
-
-# In[1263]:
-
 
 len(np.intersect1d(PIT_forward_changing_lane,PIT_forward_inter))
 
-
-# In[1265]:
-
-
 len(np.intersect1d(PIT_forward_changing_lane,PIT_forward_nointer))
 
-
-# In[1269]:
-
-
 np.mean(get_velocity_idx(PIT_diff, np.intersect1d(PIT_forward_changing_lane,PIT_forward_nointer)))
-
-
-# In[1270]:
-
 
 np.mean(get_velocity_idx(MIA_diff, np.intersect1d(MIA_forward_changing_lane,MIA_forward_nointer)))
 
 
-# In[ ]:
 
 
 
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[1673]:
 
 
 MIA_right_diff = pd.DataFrame(np.mean(get_elements_in_list(MIA_diff,MIA_right),axis=0),columns=['MIA'])
 PIT_right_diff = pd.DataFrame(np.mean(get_elements_in_list(PIT_diff,PIT_right),axis=0),columns=['PIT'])
 right_diff = pd.concat([MIA_right_diff, PIT_right_diff],axis=1)
-
-
-# In[1674]:
-
 
 right_diff.plot(figsize=(8,6))
 plt.title('Velocity of rightturn by time')
@@ -1226,17 +853,9 @@ plt.xlabel('time(0.1second)')
 plt.ylabel('Velocity(km/h)')
 plt.show()
 
-
-# In[1675]:
-
-
 MIA_left_diff = pd.DataFrame(np.mean(get_elements_in_list(MIA_diff,MIA_left),axis=0),columns=['MIA'])
 PIT_left_diff = pd.DataFrame(np.mean(get_elements_in_list(PIT_diff,PIT_left),axis=0),columns=['PIT'])
 left_diff = pd.concat([MIA_left_diff, PIT_left_diff],axis=1)
-
-
-# In[1676]:
-
 
 left_diff.plot(figsize=(8,6))
 plt.title('Velocity of leftturn by time')
@@ -1244,17 +863,9 @@ plt.xlabel('time(0.1second)')
 plt.ylabel('Velocity(km/h)')
 plt.show()
 
-
-# In[1677]:
-
-
 MIA_forward_inter_diff = pd.DataFrame(np.mean(get_elements_in_list(MIA_diff,MIA_forward_inter),axis=0),columns=['MIA'])
 PIT_forward_inter_diff = pd.DataFrame(np.mean(get_elements_in_list(PIT_diff,PIT_forward_inter),axis=0),columns=['PIT'])
 forward_inter_diff = pd.concat([MIA_forward_inter_diff, PIT_forward_inter_diff],axis=1)
-
-
-# In[1678]:
-
 
 forward_inter_diff.plot(figsize=(8,6))
 plt.title('Velocity of going straight(with intersection)by time')
@@ -1262,17 +873,9 @@ plt.xlabel('time(0.1second)')
 plt.ylabel('Velocity(km/h)')
 plt.show()
 
-
-# In[1679]:
-
-
 MIA_forward_nointer_diff = pd.DataFrame(np.mean(get_elements_in_list(MIA_diff,MIA_forward_nointer),axis=0),columns=['MIA'])
 PIT_forward_nointer_diff = pd.DataFrame(np.mean(get_elements_in_list(PIT_diff,PIT_forward_nointer),axis=0),columns=['PIT'])
 forward_nointer_diff = pd.concat([MIA_forward_nointer_diff, PIT_forward_nointer_diff],axis=1)
-
-
-# In[1680]:
-
 
 forward_nointer_diff.plot(figsize=(8,6))
 plt.title('Velocity of going straight(no intersection)by time')
@@ -1281,67 +884,23 @@ plt.ylabel('Velocity(km/h)')
 plt.show()
 
 
-# In[ ]:
 
 
 
 
 
-# In[ ]:
 
 
 
 
 
-# In[ ]:
 
 
 
 
 
-# In[ ]:
 
 
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[1705]:
 
 
 def abrupt_acc_dec(differentiation, threshold_acc=10, threshold_dec=10):
@@ -1360,35 +919,18 @@ def abrupt_acc_dec(differentiation, threshold_acc=10, threshold_dec=10):
     return acceleration_idx, deceleration_idx
 
 
-# In[1706]:
-
-
 MIA_acc, MIA_dec = abrupt_acc_dec(MIA_diff)
 PIT_acc, PIT_dec = abrupt_acc_dec(PIT_diff)
-
-
-# In[1707]:
-
 
 print('Number of Abrupt acc in MIA:', len(MIA_acc))
 print('Number of Abrupt acc in PIT:', len(PIT_acc))
 
-
-# In[1708]:
-
-
 print('Number of Abrupt dec in MIA:', len(MIA_dec))
 print('Number of Abrupt dec in PIT:', len(PIT_dec))
 
-
-# In[1709]:
-
-
+# +
 #MIA 운전자들이 훨씬 거칠게 운전 --> 급감, 급가속 PIT보다 유의미하게 많음
-
-
-# In[1710]:
-
+# -
 
 plt.figure(figsize=(8,6))
 plt.bar([0,0.9], [len(MIA_acc),len(MIA_dec)], label='MIA', color='blue',width=0.2)
@@ -1399,28 +941,11 @@ plt.ylabel('Number')
 plt.title('Number of Abrupt Acc, Dec')
 plt.show()
 
-
-# In[1711]:
-
-
 print(MIA_acc[:5])
 print(MIA_dec[:5])
 
-
-# In[1712]:
-
-
 viz_sequence_inter(MIA_raw[228], show=True)
 
-
-# In[1718]:
-
-
 viz_sequence_inter(MIA_raw[2667], show=True)
-
-
-# In[ ]:
-
-
 
 
