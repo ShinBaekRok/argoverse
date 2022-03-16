@@ -1,2 +1,2 @@
 ### Domain Generalization with argoverse motion forecasting dataset
-Read docx file. 
+2022년 1월부터 3월까지의 진행한 학부연구생 결과물입니다. 워드파일로 report 정리되어있습니다.
